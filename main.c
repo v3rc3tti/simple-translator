@@ -2,8 +2,10 @@
 #include <ctype.h>
 #include "MemoryState.h"
 #include "Token.h"
+#include "StringBuilder.h"
 
 #define INPUT_BUFFER_LEN 256
+#define STRING_BUILDER_LEN 256
 
 /*
  * program -> blocks
@@ -35,19 +37,33 @@ TokenList* getTokenList(FILE* inpFile) {
     TokenList *head = NULL;
     MemoryState *memory = createMemoryState(INPUT_BUFFER_LEN);
     
+    int ch = ' ';
     while(1) {
-        int ch = 0;
-        do {
+        while (isspace(ch)) {
             ch = getNextChar(inpFile, memory);
-        } while (isspace(ch));
+        }
         
         if (ch == '{' || ch == '}' || ch == ';') {
             char tmp[] = {ch, '\0'};
             Token token = createToken(ch, tmp);
             head = createTokenList(head, token);
-        }
-        
-        if (ch == EOF) {
+            ch = getNextChar(inpFile, memory);
+        } else if (isalpha(ch)) {
+            StringBuilder *strBuilder = createStringBuilder(STRING_BUILDER_LEN);
+            do {
+                addCharToStringBuilder(strBuilder, ch);
+                ch = getNextChar(inpFile, memory);
+            } while (isalnum(ch));
+            
+            Token token = createToken(ID, strBuilder->buffer);
+            freeStringBuilder(strBuilder);
+            head = createTokenList(head, token);
+        } else if (ch == EOF) {
+            break;
+        } else {
+            printf("Syntax error");
+            freeTokenList(head);
+            head = NULL;
             break;
         }
     }
