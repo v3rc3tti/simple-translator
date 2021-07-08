@@ -37,3 +37,17 @@ void printTokenList(TokenList *list) {
         list = list->next;
     }
 }
+
+TokenList* reverseTokenList(TokenList *list) {
+    TokenList *prev = NULL;
+    TokenList *next = NULL;
+    
+    while (list != NULL) {
+        next = list->next;
+        list->next = prev;
+        prev = list;
+        list = next;
+    }
+    
+    return prev;
+}

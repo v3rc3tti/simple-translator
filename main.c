@@ -69,6 +69,7 @@ TokenList* getTokenList(FILE* inpFile) {
     }
     
     freeMemoryState(memory);
+    head = reverseTokenList(head);
     return head;
 }
 

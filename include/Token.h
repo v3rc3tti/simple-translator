@@ -21,5 +21,6 @@ Token createToken(int type, const char *lexeme);
 void freeTokenList(TokenList *list);
 TokenList *createTokenList(TokenList *next, Token token);
 void printTokenList(TokenList *list);
+TokenList* reverseTokenList(TokenList *list);
 
 #endif
