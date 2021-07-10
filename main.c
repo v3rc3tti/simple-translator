@@ -4,13 +4,14 @@
 #include "Token.h"
 #include "StringBuilder.h"
 #include "StringTable.h"
+#include "Translator.h"
 
 #define INPUT_BUFFER_LEN 256
 #define STRING_BUILDER_LEN 256
 
 /*
  * program -> blocks
- * blocks -> blocks block | block
+ * blocks -> blocks block | e
  * block -> '{' decls stmts '}'
  * decls -> decls decl | e
  * decl -> type id ;
@@ -96,11 +97,14 @@ int main(int argc, char* argv[]) {
     table = createStringTable(table, "bool", token);
     
     TokenList *tokens = getTokenList(inpFile, table);
+    freeStringTable(table);
     fclose(inpFile);
+    
     printTokenList(tokens);
 
+    translateTokenList(tokens);
+
     freeTokenList(tokens);
-    freeStringTable(table);
     
     return 0;
 }
