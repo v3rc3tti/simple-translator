@@ -12,14 +12,16 @@ typedef struct Token_ {
 } Token;
 
 typedef struct TokenList_ {
-    Token token;
+    Token *token;
     struct TokenList_ *next;
 } TokenList;
 
-Token createToken(int type, const char *lexeme);
+Token* createToken(int type, const char *lexeme);
+Token* copyToken(Token *token);
+void freeToken(Token *token);
 
 void freeTokenList(TokenList *list);
-TokenList *createTokenList(TokenList *next, Token token);
+TokenList* createTokenList(TokenList *next, Token *token);
 void printTokenList(TokenList *list);
 TokenList* reverseTokenList(TokenList *list);
 

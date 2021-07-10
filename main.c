@@ -3,6 +3,7 @@
 #include "MemoryState.h"
 #include "Token.h"
 #include "StringBuilder.h"
+#include "StringTable.h"
 
 #define INPUT_BUFFER_LEN 256
 #define STRING_BUILDER_LEN 256
@@ -33,7 +34,7 @@ int getNextChar(FILE* stream, MemoryState *memory) {
     return ch;
 }
 
-TokenList* getTokenList(FILE* inpFile) {
+TokenList* getTokenList(FILE* inpFile, StringTable *strTable) {
     TokenList *head = NULL;
     MemoryState *memory = createMemoryState(INPUT_BUFFER_LEN);
     
@@ -45,7 +46,7 @@ TokenList* getTokenList(FILE* inpFile) {
         
         if (ch == '{' || ch == '}' || ch == ';') {
             char tmp[] = {ch, '\0'};
-            Token token = createToken(ch, tmp);
+            Token *token = createToken(ch, tmp);
             head = createTokenList(head, token);
             ch = getNextChar(inpFile, memory);
         } else if (isalpha(ch)) {
@@ -55,7 +56,10 @@ TokenList* getTokenList(FILE* inpFile) {
                 ch = getNextChar(inpFile, memory);
             } while (isalnum(ch));
             
-            Token token = createToken(ID, strBuilder->buffer);
+            Token *token = findTokenByLexeme(strTable, strBuilder->buffer);
+            if (!token) {
+                token = createToken(ID, strBuilder->buffer);
+            }
             freeStringBuilder(strBuilder);
             head = createTokenList(head, token);
         } else if (ch == EOF) {
@@ -85,11 +89,18 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     printf("<<===--Turbo--===>>\n");
-
-    TokenList *tokens = getTokenList(inpFile);
+    
+    Token *token = createToken(TYPE, "int");
+    StringTable *table = createStringTable(NULL, "int", token);
+    token = createToken(TYPE, "bool");
+    table = createStringTable(table, "bool", token);
+    
+    TokenList *tokens = getTokenList(inpFile, table);
     fclose(inpFile);
     printTokenList(tokens);
 
     freeTokenList(tokens);
+    freeStringTable(table);
+    
     return 0;
 }
