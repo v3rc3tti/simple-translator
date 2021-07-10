@@ -1,24 +1,27 @@
 #include <stdio.h>
 #include "Translator.h"
 #include "Token.h"
+#include "Environment.h"
 
 /*
  * blocks -> blocks block | e
- *   blocks -> block blocks | e
- * block -> '{' decls stmts '}'
+ * block -> '{' {push Environment} decls stmts '}' {pop Environment}
  * decls -> decls decl | e
- * decl -> type id ;
+ * decl -> type id ; {add Symbol to Environment}
  * stmts -> stmts stmt | e
- * stmt ->  block | id ;
+ * stmt ->  block | id ; {find Symbol in Environment}
  */
 
 static Token *lookahead;
 static TokenList *tokenList;
+static Environment *environment;
 
 void translateTokenList(TokenList *list) {
+    environment = createEnvironment(NULL);
     tokenList = list;
     lookahead = list->token;
     blocks();
+    freeEnvironment(environment);
 }
 
 void blocks() {
@@ -28,7 +31,21 @@ void blocks() {
 }
 
 void block() {
-    match('{'); decls(); stmts(); match('}');
+    match('{'); 
+    
+    //start semantic action
+    printf("{");
+    environment = createEnvironment(environment);
+    //end semantic action
+    
+    decls();
+    stmts(); 
+    match('}');
+    
+    //start semantic action
+    printf("}");
+    environment = freeEnvironment(environment);
+    //end semantic action
 }
 
 void decls() {
@@ -38,12 +55,28 @@ void decls() {
 }
 
 void decl() {
-    match(TYPE); match(ID); match(';');
+    //start semantic action
+    Token *typeToken = lookahead;
+    //end semantic action
+    
+    match(TYPE);
+    
+    //start semantic action
+    Token *idToken = lookahead;
+    //end semantic action
+    
+    match(ID); match(';');
+    
+    //start semantic action
+    Symbol *symbol = createSymbol(idToken->lexeme, typeToken->lexeme);
+    addSymbolToEnvironment(environment, symbol);
+    //end semantic action
 }
 
 void stmts() {
     if (lookahead->type == '{' || lookahead->type == ID) {
-        stmt(); stmts();
+        stmt();
+        stmts();
     }
 }
 
@@ -52,8 +85,21 @@ void stmt() {
         case '{':
             block();
         break;
-        case ID:
-            match(ID); match(';');
+        case ID: {
+            //start semantic action
+            Token *idToken = lookahead;
+            //end semantic action
+            
+            match(ID);
+            match(';');
+            
+            //start semantic action
+            Symbol *symbol = findLexemeInEnvironment(environment, idToken->lexeme);
+            if (symbol) {
+                printf("%s:%s;", symbol->lexeme, symbol->type);
+            }
+            //end semantic action
+        }    
         break;
         default:
             printf("Syntax Error");

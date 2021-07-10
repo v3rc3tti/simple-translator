@@ -9,16 +9,6 @@
 #define INPUT_BUFFER_LEN 256
 #define STRING_BUILDER_LEN 256
 
-/*
- * program -> blocks
- * blocks -> blocks block | e
- * block -> '{' decls stmts '}'
- * decls -> decls decl | e
- * decl -> type id ;
- * stmts -> stmts stmt | e
- * stmt ->  block | id ;
- */
-
 int getNextChar(FILE* stream, MemoryState *memory) {
     if (memory->pointer >= memory->count) {
         if (feof(stream)) {

@@ -7,6 +7,7 @@ add_executable(translator main.c
                     Token.c
                     StringBuilder.c
                     StringTable.c
-                    Translator.c)
+                    Translator.c
+                    Environment.c)
 
 target_include_directories(translator PRIVATE "${CMAKE_SOURCE_DIR}/include")
