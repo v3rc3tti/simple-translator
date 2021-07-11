@@ -25,6 +25,8 @@ void translateTokenList(TokenList *list) {
 }
 
 void blocks() {
+    if (lookahead == NULL) return;
+
     if (lookahead->type == '{') {
         block(); blocks();
     }
@@ -49,6 +51,8 @@ void block() {
 }
 
 void decls() {
+    if (lookahead == NULL) return;
+
     if (lookahead->type == TYPE) {
         decl(); decls();
     }
@@ -74,6 +78,8 @@ void decl() {
 }
 
 void stmts() {
+    if (lookahead == NULL) return;
+
     if (lookahead->type == '{' || lookahead->type == ID) {
         stmt();
         stmts();
@@ -81,6 +87,8 @@ void stmts() {
 }
 
 void stmt() {
+    if (lookahead == NULL) return;
+
     switch (lookahead->type) {
         case '{':
             block();
@@ -108,6 +116,8 @@ void stmt() {
 }
 
 void match(int tokenType) {
+    if (lookahead == NULL) return;
+
     if (lookahead->type == tokenType) {
         tokenList = tokenList->next;
         if (tokenList) {
